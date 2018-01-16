@@ -486,8 +486,9 @@ handle_info({ Transport, Socket, BinaryMsg }, live, State = #client_state{ socke
             end,
             {next_state, live, release_stream_id(StreamID, State)};
 
-        {ok, #cqerl_frame{opcode=?CQERL_OP_EVENT}, _EventTerm, Delayed} ->
-            ok%% TODO Manage incoming server-driven events
+        {ok, #cqerl_frame{opcode=?CQERL_OP_EVENT, stream_id=StreamID}, _EventTerm, Delayed} when StreamID >= 0 ->
+            {next_state, live, release_stream_id(StreamID, State)}
+            %% Just ignore incoming server-driven events
     end,
 
     case Resp of
